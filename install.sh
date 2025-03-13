@@ -45,9 +45,16 @@ else
     sudo ln -sf "$SCRIPT_PATH" "$SYMLINK_PATH"
 fi
 
+# Extract the version from the downloaded script
+INSTALLED_VERSION=$(grep -o 'VERSION="[^"]*"' "$SCRIPT_PATH" | head -1 | cut -d'"' -f2)
+
 # Verify installation
 if command -v prmate &> /dev/null; then
-    echo "✅ PRMate installed successfully!"
+    echo "✅ PRMate v${INSTALLED_VERSION} installed successfully!"
+    echo "📋 Installation details:"
+    echo "   - Script location: $SCRIPT_PATH"
+    echo "   - Symlink: $SYMLINK_PATH"
+    echo "   - OS: $OS"
     echo "🛠️ Run 'prmate --dry-run' to test it."
 else
     echo "❌ Installation failed. Try restarting your shell or manually adding $INSTALL_DIR to PATH."
