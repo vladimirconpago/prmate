@@ -78,8 +78,8 @@ check_for_updates() {
     # Fetch latest script from GitHub (force no-cache)
     LATEST_SCRIPT=$(curl -sSL -H "Cache-Control: no-cache" "$GITHUB_RAW_URL")
     
-    # Extract version from the latest script
-    LATEST_VERSION=$(echo "$LATEST_SCRIPT" | grep -o 'VERSION="[0-9]\+\.[0-9]\+\.[0-9]\+"' | cut -d'"' -f2)
+    # Extract version from the latest script - allow for alphanumeric version formats
+    LATEST_VERSION=$(echo "$LATEST_SCRIPT" | grep -o 'VERSION="[^"]*"' | head -1 | cut -d'"' -f2)
     
     if [[ -z "$LATEST_VERSION" ]]; then
         echo "⚠️ Could not determine latest version. Skipping update check."
