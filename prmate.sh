@@ -43,6 +43,12 @@ EMOJIS=("✨ Features" "🐛 Bug Fixes" "📝 Documentation" "🎨 Code Style" "
 GROUPED_SCOPES_KEYS=()
 GROUPED_SCOPES_VALUES=()
 
+# Get GitHub repo URL
+GITHUB_REPO_URL=$(git remote get-url origin | sed -E 's#(git@|https://)([^:/]+)[:/]([^/]+)/([^/.]+).*#https://\2/\3/\4#')
+UNCATEGORIZED_COMMITS=""
+BREAKING_CHANGES=""
+
+
 # Ensure `gh` CLI is installed
 if ! command -v gh &> /dev/null; then
     echo "❌ GitHub CLI (gh) is not installed."
@@ -145,8 +151,6 @@ else
     TASK="https://fibery.io/task"
 fi
 
-# Get GitHub repo URL
-GITHUB_REPO_URL=$(git remote get-url origin | sed -E 's#(git@|https://)([^:/]+)[:/]([^/]+)/([^/.]+).*#https://\2/\3/\4#')
 
 # Get current branch as SOURCE_BRANCH (where the PR is coming from)
 BASE_BRANCH=$(git branch --show-current)
@@ -209,8 +213,6 @@ add_to_grouped_scopes() {
     GROUPED_SCOPES_VALUES+=("$value")
 }
 
-UNCATEGORIZED_COMMITS=""
-BREAKING_CHANGES=""
 
 while IFS= read -r commit || [ -n "$commit" ]; do
     # Skip empty lines
