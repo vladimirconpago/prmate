@@ -163,10 +163,10 @@ while IFS= read -r commit; do
     COMMIT_MESSAGE=$(echo "$commit" | cut -d' ' -f2-)
     FULL_COMMIT_MESSAGE=$(git show --no-patch --format=%B "$COMMIT_HASH") # Get full commit message body
 
-    # Extract type and scope
+    # Extract type and scope, defaulting to "Uncategorized" if scope is missing
     if [[ $COMMIT_MESSAGE =~ ^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(([^\)]+)\))?(!)?: ]]; then
         commit_type="${BASH_REMATCH[1]}"
-        commit_scope="${BASH_REMATCH[3]}"
+        commit_scope="${BASH_REMATCH[3]:-Uncategorized}"  # Default to "Uncategorized"
     else
         commit_type="other"
         commit_scope="Uncategorized"
@@ -184,6 +184,7 @@ while IFS= read -r commit; do
     elif [[ "$commit_type" == "other" ]]; then
         UNCATEGORIZED_COMMITS+="- 🗑️ $commit_link"$'\n'
     else
+        # Ensure GROUPED_SCOPES array is initialized
         GROUPED_SCOPES["$commit_scope"]+="- ${EMOJI_MAP[$commit_type]} $commit_link"$'\n'
     fi
 done <<< "$COMMIT_MESSAGES"
