@@ -19,7 +19,7 @@
 Run the following command to install **PRMate**:
 
 ```sh
-git clone https://github.com/vladimirconpago/prmate.git
+git clone https://github.com/vladimirorg/prmate.git
 cd prmate
 chmod +x install.sh
 ./install.sh
@@ -57,18 +57,18 @@ prmate --dry-run
 ## Description
 
 ### egress
-- ♲️ [Refactor JWT handling using NestJS](https://github.com/conpagoaus/conpago-nest-backend/commit/5b17f12)
-- ✨ [Add JWT authentication flow](https://github.com/conpagoaus/conpago-nest-backend/commit/a7c8e3d)
+- ♲️ [Refactor JWT handling using NestJS](https://github.com/your-org/org-nest-backend/commit/5b17f12)
+- ✨ [Add JWT authentication flow](https://github.com/your-org/org-nest-backend/commit/a7c8e3d)
 
 ### auth
-- ✨ [Implement OAuth login](https://github.com/conpagoaus/conpago-nest-backend/commit/9f8e2d3)
-- 🐛 [Fix session expiration bug](https://github.com/conpagoaus/conpago-nest-backend/commit/8d7a6c4)
+- ✨ [Implement OAuth login](https://github.com/your-org/org-nest-backend/commit/9f8e2d3)
+- 🐛 [Fix session expiration bug](https://github.com/your-org/org-nest-backend/commit/8d7a6c4)
 
 ### 🗑️ Uncategorized
-- 🗑️ [Fix typo in UI](https://github.com/conpagoaus/conpago-nest-backend/commit/123abc)
+- 🗑️ [Fix typo in UI](https://github.com/your-org/org-nest-backend/commit/123abc)
 
 ## Fibery Task
-https://conpago.fibery.io/Software_Development/Story/Sync-Care-Appointments-958
+https://org.fibery.io/Software_Development/Story/Sync-Care-Appointments-958
 
 ## Testing Instructions
 ```sh
