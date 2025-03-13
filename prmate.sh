@@ -129,23 +129,35 @@ fi
 # Get GitHub repo URL
 GITHUB_REPO_URL=$(git remote get-url origin | sed -E 's#(git@|https://)([^:/]+)[:/]([^/]+)/([^/.]+).*#https://\2/\3/\4#')
 
-# Check if remote branch exists
+# Get current branch as BASE_BRANCH (where the PR is coming from)
+BASE_BRANCH=$(git branch --show-current)
+
+# Check if remote target branch exists
 if git show-ref --verify --quiet "refs/remotes/origin/$TARGET_BRANCH"; then
-    BASE_BRANCH="origin/$TARGET_BRANCH"
-# If remote does not exist, check if local branch exists
+    TARGET_BRANCH_REF="origin/$TARGET_BRANCH"
 elif git show-ref --verify --quiet "refs/heads/$TARGET_BRANCH"; then
     echo "⚠️ Warning: 'origin/$TARGET_BRANCH' not found. Using local '$TARGET_BRANCH' branch."
-    BASE_BRANCH="$TARGET_BRANCH"
+    TARGET_BRANCH_REF="$TARGET_BRANCH"
 else
     echo "❌ Error: Target branch '$TARGET_BRANCH' does not exist remotely or locally."
     exit 1
 fi
 
+# Debugging output
+echo "🔎 Comparing changes: $BASE_BRANCH..$TARGET_BRANCH_REF"
+
+# Check if commits exist before proceeding
+if [[ $(git rev-list --count "$TARGET_BRANCH_REF".."$BASE_BRANCH") -eq 0 ]]; then
+    echo "❌ No new commits between '$BASE_BRANCH' and '$TARGET_BRANCH'."
+    echo "🔎 Run 'git log --oneline $BASE_BRANCH..$TARGET_BRANCH_REF' manually to check."
+    exit 1
+fi
+
 # Fetch commit messages
-COMMIT_MESSAGES=$(git log --pretty=format:"%h %s%n%b" $BASE_BRANCH..$BRANCH)
+COMMIT_MESSAGES=$(git log --pretty=format:"%h %s%n%b" "$TARGET_BRANCH_REF".."$BASE_BRANCH")
 # Check if there are commits
 if [ -z "$COMMIT_MESSAGES" ]; then
-    echo "❌ No new commits to create a PR from branch '$BRANCH' to '$TARGET_BRANCH'."
+    echo "❌ No new commits to create a PR from branch '$TARGET_BRANCH' to '$BASE_BRANCH'."
     exit 1
 fi
 
