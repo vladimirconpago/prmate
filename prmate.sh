@@ -199,10 +199,9 @@ PR_BODY+="
 $FIBERY_TASK
 
 ## Testing Instructions
-\`\`\`sh
-pnpm test
-\`\`\`
-"
+
+\`pnpm test`\
+
 
 # If --dry-run is set, print the PR body and exit
 if [ "$DRY_RUN" = true ]; then
