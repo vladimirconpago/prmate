@@ -3,12 +3,17 @@
 # Ensure the script exits on any error
 set -e
 
+# Script version
+VERSION="0.0.1a"
+
 # Function to display usage instructions
 usage() {
-    echo "Usage: $0 [-b <branch>] [--dry-run] [--reinstall]"
+    echo "PRMate v$VERSION"
+    echo "Usage: $0 [-b <branch>] [--dry-run] [--reinstall] [--version]"
     echo "  -b  Specify a branch (default: current branch)"
     echo "  --dry-run  Preview PR body without creating PR"
     echo "  --reinstall  Reinstall PRMate to update to the latest version"
+    echo "  --version  Display the current version"
     exit 1
 }
 
@@ -51,7 +56,6 @@ if ! git show-ref --verify --quiet "refs/heads/$BRANCH"; then
     exit 1
 fi
 
-
 # Function to get the SHA fingerprint of a file
 get_sha_fingerprint() {
     if command -v shasum &> /dev/null; then
@@ -71,14 +75,20 @@ check_for_updates() {
     fi
     echo "🔍 Checking for updates..."
 
-    # Fetch latest script SHA from GitHub (force no-cache)
-    LATEST_SHA=$(curl -sSL -H "Cache-Control: no-cache" "$GITHUB_RAW_URL" | shasum -a 256 | awk '{print $1}')
-
-    # Compute local script SHA
-    LOCAL_SHA=$(get_sha_fingerprint "$SCRIPT_PATH")
-
-    if [[ "$LATEST_SHA" != "$LOCAL_SHA" ]]; then
-        echo "🔔 A new version of PRMate is available!"
+    # Fetch latest script from GitHub (force no-cache)
+    LATEST_SCRIPT=$(curl -sSL -H "Cache-Control: no-cache" "$GITHUB_RAW_URL")
+    
+    # Extract version from the latest script
+    LATEST_VERSION=$(echo "$LATEST_SCRIPT" | grep -o 'VERSION="[0-9]\+\.[0-9]\+\.[0-9]\+"' | cut -d'"' -f2)
+    
+    if [[ -z "$LATEST_VERSION" ]]; then
+        echo "⚠️ Could not determine latest version. Skipping update check."
+        return
+    fi
+    
+    # Compare versions
+    if [[ "$LATEST_VERSION" != "$VERSION" ]]; then
+        echo "🔔 A new version of PRMate is available! (Current: v$VERSION, Latest: v$LATEST_VERSION)"
         read -rp "Do you want to update now? (y/n): " CONFIRM
         if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
             echo "⬇️ Installing new version..."
@@ -88,7 +98,7 @@ check_for_updates() {
             echo "⚠️ Skipping update. You can update manually later."
         fi
     else
-        echo "✅ PRMate is up to date."
+        echo "✅ PRMate v$VERSION is up to date."
     fi
 }
 
@@ -103,9 +113,11 @@ reinstall_prmate() {
 for arg in "$@"; do
     if [[ "$arg" == "--reinstall" ]]; then
         reinstall_prmate
+    elif [[ "$arg" == "--version" ]]; then
+        echo "PRMate v$VERSION"
+        exit 0
     fi
 done
-
 
 # Parse optional flags
 while [[ "$#" -gt 0 ]]; do
@@ -116,7 +128,6 @@ while [[ "$#" -gt 0 ]]; do
     esac
     shift
 done
-
 
 # Call the update checker at script startup (except dry-run)
 if [[ "$DRY_RUN" != "true" ]]; then
@@ -174,8 +185,6 @@ echo "✅ Found $COMMIT_COUNT commit(s) to include in the PR"
 COMMIT_FILE=$(mktemp)
 git log --pretty=format:"%h %s%n%b" "$TARGET_BRANCH_REF".."$BASE_BRANCH" > "$COMMIT_FILE" 2>/dev/null
 
-
-
 get_emoji() {
     local type="$1"
     for i in "${!COMMIT_TYPES[@]}"; do
@@ -186,8 +195,6 @@ get_emoji() {
     done
     echo "🗑️ Uncategorized"  # Default if not found
 }
-
-
 
 add_to_grouped_scopes() {
     local key="$1"
