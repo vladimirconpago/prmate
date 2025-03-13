@@ -5,12 +5,19 @@
 ## 🚀 Features
 
 ✅ **Intelligent Commit Grouping** – Organizes commits into categories like `✨ Features`, `🐛 Bug Fixes`, and `♲️ Refactoring`.
+
 ✅ **Scope-Based Organization** – Groups commits under the relevant feature or module scope.
+
 ✅ **Breaking Change Detection** – Clearly highlights commits that contain breaking changes (`BREAKING CHANGE:`).
+
 ✅ **Uncategorized Section** – Places commits without a prefix (`feat:`, `fix:`) into a separate 🗑️ "Uncategorized" section.
+
 ✅ **Automatic GitHub Links** – Generates direct links to commits in the PR description.
+
 ✅ **Dry-Run Mode** – Preview the PR body before submitting.
+
 ✅ **Cross-Platform Installation** – Works on **MacOS & Linux** with an easy installer.
+
 
 ---
 
