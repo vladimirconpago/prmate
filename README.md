@@ -18,7 +18,6 @@
 
 ✅ **Cross-Platform Installation** – Works on **MacOS & Linux** with an easy installer.
 
-
 ---
 
 ## 👥 Installation
@@ -87,21 +86,29 @@ https://org.fibery.io/Software_Development/Story/Sync-Care-Appointments-958
 ```sh
 pnpm test
 ````
+
 ---
 
 ## 📌 Notes
+
 - PRMate assumes you are using **Conventional Commits** (`feat:`, `fix:`, etc.).
 - If no commit prefix is found, it will be categorized under **Uncategorized**.
 - Works with **GitHub CLI (`gh`)**, ensure you are authenticated (`gh auth login`).
 
 ---
 
+## Features
+
+- **Auto updater**
+- **Dry-run mode**
+- **Reinstall mode**
+
 ## ❤️ Contributing
+
 Want to improve PRMate? Feel free to open an issue or submit a pull request.
 
 ---
 
 ## 📝 License
+
 MIT License © 2025
-
-
