@@ -4,11 +4,11 @@
 set -e
 
 # Script version
-VERSION="0.0.1a"
+VERSION="0.0.1b"
 
 # Function to display usage instructions
 usage() {
-    echo "PRMate v$VERSION"
+    echo "🧢 PRMate v$VERSION "
     echo "Usage: $0 [-b <branch>] [--dry-run] [--reinstall] [--version]"
     echo "  -b  Specify a branch (default: current branch)"
     echo "  --dry-run  Preview PR body without creating PR"
@@ -248,7 +248,7 @@ while IFS= read -r commit || [ -n "$commit" ]; do
     if echo "$FULL_COMMIT_MESSAGE" | grep -q "BREAKING CHANGE:"; then
         BREAKING_CHANGES+="- ⚠️ $commit_link"$'\n'
     elif [[ "$commit_type" == "other" ]]; then
-        UNCATEGORIZED_COMMITS+="- 🗑️ $commit_link"$'\n'
+        UNCATEGORIZED_COMMITS+="- ⁉️ $commit_link"$'\n'
     else
         # Ensure GROUPED_SCOPES array is initialized
         emoji=$(get_emoji "$commit_type")
@@ -271,7 +271,7 @@ for i in "${!GROUPED_SCOPES_KEYS[@]}"; do
 done
 
 if [[ -n "$UNCATEGORIZED_COMMITS" ]]; then
-    PR_BODY+="### 🗑️ Uncategorized"$'\n\n'"$UNCATEGORIZED_COMMITS"$'\n'
+    PR_BODY+="### ⁉️ Uncategorized"$'\n\n'"$UNCATEGORIZED_COMMITS"$'\n'
 fi
 
 # Fix the formatting of code blocks for `pnpm test`
