@@ -27,7 +27,7 @@ SCRIPT_PATH="$INSTALL_DIR/$SCRIPT_NAME"
 GITHUB_RAW_URL="https://raw.githubusercontent.com/vladimirconpago/prmate/master/prmate.sh"
 GITHUB_INSTALLER_URL="https://raw.githubusercontent.com/vladimirconpago/prmate/master/install.sh"
 DRY_RUN=false
-
+TARGET_BRANCH="develop"
 
 # Ensure `gh` CLI is installed
 if ! command -v gh &> /dev/null; then
@@ -102,7 +102,7 @@ done
 # Parse optional flags
 while [[ "$#" -gt 0 ]]; do
     case $1 in
-        -b) BRANCH="$2"; shift ;;
+        -b) TARGET_BRANCH="$2"; shift ;;
         --dry-run) DRY_RUN=true ;;
         *) usage ;;
     esac
@@ -129,14 +129,26 @@ fi
 # Get GitHub repo URL
 GITHUB_REPO_URL=$(git remote get-url origin | sed -E 's#(git@|https://)([^:/]+)[:/]([^/]+)/([^/.]+).*#https://\2/\3/\4#')
 
-# Fetch commit messages with hashes
-COMMIT_MESSAGES=$(git log --pretty=format:"%h %s%n%b" origin/develop..$BRANCH)
-
-# Check if there are commits
-if [ -z "$COMMIT_MESSAGES" ]; then
-    echo "❌ No new commits to create a PR from branch '$BRANCH'."
+# Check if remote branch exists
+if git show-ref --verify --quiet "refs/remotes/origin/$TARGET_BRANCH"; then
+    BASE_BRANCH="origin/$TARGET_BRANCH"
+# If remote does not exist, check if local branch exists
+elif git show-ref --verify --quiet "refs/heads/$TARGET_BRANCH"; then
+    echo "⚠️ Warning: 'origin/$TARGET_BRANCH' not found. Using local '$TARGET_BRANCH' branch."
+    BASE_BRANCH="$TARGET_BRANCH"
+else
+    echo "❌ Error: Target branch '$TARGET_BRANCH' does not exist remotely or locally."
     exit 1
 fi
+
+# Fetch commit messages
+COMMIT_MESSAGES=$(git log --pretty=format:"%h %s%n%b" $BASE_BRANCH..$BRANCH)
+# Check if there are commits
+if [ -z "$COMMIT_MESSAGES" ]; then
+    echo "❌ No new commits to create a PR from branch '$BRANCH' to '$TARGET_BRANCH'."
+    exit 1
+fi
+
 
 # Mapping commit types to emoji icons
 declare -A EMOJI_MAP=(
