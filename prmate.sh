@@ -129,7 +129,7 @@ fi
 # Get GitHub repo URL
 GITHUB_REPO_URL=$(git remote get-url origin | sed -E 's#(git@|https://)([^:/]+)[:/]([^/]+)/([^/.]+).*#https://\2/\3/\4#')
 
-# Get current branch as BASE_BRANCH (where the PR is coming from)
+# Get current branch as SOURCE_BRANCH (where the PR is coming from)
 BASE_BRANCH=$(git branch --show-current)
 
 # Check if remote target branch exists
@@ -143,24 +143,28 @@ else
     exit 1
 fi
 
-# Debugging output
-echo "🔎 Comparing changes: $BASE_BRANCH..$TARGET_BRANCH_REF"
+echo "🔍 Comparing changes between '$BASE_BRANCH' and '$TARGET_BRANCH_REF'"
 
-# Check if commits exist before proceeding
-if [[ $(git rev-list --count "$TARGET_BRANCH_REF".."$BASE_BRANCH") -eq 0 ]]; then
-    echo "❌ No new commits between '$BASE_BRANCH' and '$TARGET_BRANCH'."
-    echo "🔎 Run 'git log --oneline $BASE_BRANCH..$TARGET_BRANCH_REF' manually to check."
-    exit 1
-fi
+# Get the commit SHAs directly
+BASE_SHA=$(git rev-parse "$BASE_BRANCH")
+TARGET_SHA=$(git rev-parse "$TARGET_BRANCH_REF")
 
-# Fetch commit messages
-COMMIT_MESSAGES=$(git log --pretty=format:"%h %s%n%b" "$TARGET_BRANCH_REF".."$BASE_BRANCH")
+# Get commits that are in your branch but not in target branch
+YOUR_COMMITS=$(git log --pretty=format:"%h %s" "$TARGET_BRANCH_REF".."$BASE_BRANCH" 2>/dev/null || echo "")
+
 # Check if there are commits
-if [ -z "$COMMIT_MESSAGES" ]; then
-    echo "❌ No new commits to create a PR from branch '$TARGET_BRANCH' to '$BASE_BRANCH'."
+if [ -z "$YOUR_COMMITS" ]; then
+    echo "❌ No new commits to create a PR from branch '$BASE_BRANCH' to '$TARGET_BRANCH_REF'."
     exit 1
 fi
 
+# Get the number of commits for informational purposes
+COMMIT_COUNT=$(echo "$YOUR_COMMITS" | wc -l)
+echo "✅ Found $COMMIT_COUNT commit(s) to include in the PR"
+
+# Get the full commit messages for processing - store in a file to avoid issues with empty lines
+COMMIT_FILE=$(mktemp)
+git log --pretty=format:"%h %s%n%b" "$TARGET_BRANCH_REF".."$BASE_BRANCH" > "$COMMIT_FILE" 2>/dev/null
 
 # Mapping commit types to emoji icons
 declare -A EMOJI_MAP=(
@@ -182,10 +186,22 @@ declare -A GROUPED_SCOPES
 UNCATEGORIZED_COMMITS=""
 BREAKING_CHANGES=""
 
-while IFS= read -r commit; do
+while IFS= read -r commit || [ -n "$commit" ]; do
+    # Skip empty lines
+    if [ -z "$commit" ]; then
+        continue
+    fi
+    
     COMMIT_HASH=$(echo "$commit" | awk '{print $1}')
     COMMIT_MESSAGE=$(echo "$commit" | cut -d' ' -f2-)
-    FULL_COMMIT_MESSAGE=$(git show --no-patch --format=%B "$COMMIT_HASH") # Get full commit message body
+    
+    # Skip if we couldn't parse the commit hash
+    if [ -z "$COMMIT_HASH" ]; then
+        continue
+    fi
+    
+    # Get full commit message body
+    FULL_COMMIT_MESSAGE=$(git show --no-patch --format=%B "$COMMIT_HASH" 2>/dev/null || echo "")
 
     # Extract type and scope, defaulting to "Uncategorized" if scope is missing
     if [[ $COMMIT_MESSAGE =~ ^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(([^\)]+)\))?(!)?: ]]; then
@@ -211,7 +227,10 @@ while IFS= read -r commit; do
         # Ensure GROUPED_SCOPES array is initialized
         GROUPED_SCOPES["$commit_scope"]+="- ${EMOJI_MAP[$commit_type]} $commit_link"$'\n'
     fi
-done <<< "$COMMIT_MESSAGES"
+done < "$COMMIT_FILE"
+
+# Clean up temp file
+rm -f "$COMMIT_FILE"
 
 # Build the PR body
 PR_BODY="## Description"$'\n\n'
@@ -251,4 +270,3 @@ if [ $? -eq 0 ]; then
 else
     echo "❌ Failed to create pull request."
 fi
-
