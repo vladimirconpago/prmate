@@ -19,6 +19,12 @@
 Run the following command to install **PRMate**:
 
 ```sh
+ curl -sSL https://raw.githubusercontent.com/vladimirconpago/prmate/master/install.sh | bash
+```
+
+Alternatively, clone the repo and run the installer:
+
+```sh
 git clone https://github.com/vladimirorg/prmate.git
 cd prmate
 chmod +x install.sh

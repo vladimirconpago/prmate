@@ -29,9 +29,11 @@ if [[ ! -d "$INSTALL_DIR" ]]; then
     mkdir -p "$INSTALL_DIR"
 fi
 
-# Copy the script to ~/.tools
-echo "📄 Installing prmate script to $SCRIPT_PATH"
-cp prmate.sh "$SCRIPT_PATH"
+# Download PRMate script from GitHub
+echo "⬇️ Downloading PRMate script..."
+curl -sSL -o "$SCRIPT_PATH" "https://raw.githubusercontent.com/vladimirconpago/prmate/master/prmate.sh"
+
+# Ensure the script is executable
 chmod +x "$SCRIPT_PATH"
 
 # Check if we have permission to create symlink in /usr/local/bin
@@ -45,9 +47,8 @@ fi
 
 # Verify installation
 if command -v prmate &> /dev/null; then
-    echo "✅ prmate installed successfully!"
+    echo "✅ PRMate installed successfully!"
     echo "🛠️ Run 'prmate --dry-run' to test it."
 else
     echo "❌ Installation failed. Try restarting your shell or manually adding $INSTALL_DIR to PATH."
 fi
-
