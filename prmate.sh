@@ -4,7 +4,7 @@
 set -e
 
 # Script version
-VERSION="0.0.3"
+VERSION="0.0.4"
 
 # Function to display usage instructions
 usage() {
@@ -273,7 +273,7 @@ for i in "${!GROUPED_SCOPES_KEYS[@]}"; do
 done
 
 if [[ -n "$UNCATEGORIZED_COMMITS" ]]; then
-    PR_BODY+="### ⁉️ Uncategorized"$'\n\n'"$UNCATEGORIZED_COMMITS"$'\n'
+    PR_BODY+="### ⁉️ Non-compliant"$'\n\n'"$UNCATEGORIZED_COMMITS"$'\n'
 fi
 
 # Fix the formatting of code blocks for `pnpm test`
