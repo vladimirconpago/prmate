@@ -87,9 +87,6 @@ https://org.fibery.io/Software_Development/Story/Sync-Care-Appointments-958
 ```sh
 pnpm test
 ````
-
-```
-
 ---
 
 ## 📌 Notes
@@ -107,4 +104,4 @@ Want to improve PRMate? Feel free to open an issue or submit a pull request.
 ## 📝 License
 MIT License © 2025
 
-```
+
