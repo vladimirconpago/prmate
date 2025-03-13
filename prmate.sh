@@ -4,7 +4,7 @@
 set -e
 
 # Script version
-VERSION="0.0.1b"
+VERSION="0.0.2"
 
 # Function to display usage instructions
 usage() {
