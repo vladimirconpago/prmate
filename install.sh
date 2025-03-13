@@ -6,7 +6,7 @@ INSTALL_DIR="$HOME/.tools"
 SCRIPT_NAME="prmate.sh"
 SCRIPT_PATH="$INSTALL_DIR/$SCRIPT_NAME"
 SYMLINK_PATH="/usr/local/bin/prmate"
-
+GITHUB_RAW_URL="https://raw.githubusercontent.com/vladimirconpago/prmate/master/prmate.sh"
 # Function to detect OS
 detect_os() {
     case "$(uname -s)" in
@@ -31,7 +31,7 @@ fi
 
 # Download PRMate script from GitHub
 echo "⬇️ Downloading PRMate script..."
-curl -sSL -o "$SCRIPT_PATH" "https://raw.githubusercontent.com/vladimirconpago/prmate/master/prmate.sh"
+curl -sSL -o "$SCRIPT_PATH" "$GITHUB_RAW_URL"
 
 # Ensure the script is executable
 chmod +x "$SCRIPT_PATH"

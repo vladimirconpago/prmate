@@ -3,6 +3,66 @@
 # Ensure the script exits on any error
 set -e
 
+INSTALL_DIR="$HOME/.tools"
+SCRIPT_NAME="prmate.sh"
+SCRIPT_PATH="$INSTALL_DIR/$SCRIPT_NAME"
+GITHUB_RAW_URL="https://raw.githubusercontent.com/vladimirconpago/prmate/master/prmate.sh"
+GITHUB_INSTALLER_URL="https://raw.githubusercontent.com/vladimirconpago/prmate/master/install.sh"
+# Function to get the SHA fingerprint of a file
+get_sha_fingerprint() {
+    if command -v shasum &> /dev/null; then
+        shasum -a 256 "$1" | awk '{print $1}'
+    elif command -v sha256sum &> /dev/null; then
+        sha256sum "$1" | awk '{print $1}'
+    else
+        echo "❌ SHA256 command not found."
+        exit 1
+    fi
+}
+
+# Function to check for updates
+check_for_updates() {
+    echo "🔍 Checking for updates..."
+    
+    # Fetch latest script SHA from GitHub
+    LATEST_SHA=$(curl -sSL "$GITHUB_RAW_URL" | shasum -a 256 | awk '{print $1}')
+
+    # Compute local script SHA
+    LOCAL_SHA=$(get_sha_fingerprint "$SCRIPT_PATH")
+
+    if [[ "$LATEST_SHA" != "$LOCAL_SHA" ]]; then
+        echo "🔔 A new version of PRMate is available!"
+        read -rp "Do you want to update now? (y/n): " CONFIRM
+        if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
+            echo "⬇️ Installing new version..."
+            prmate reinstall
+            echo "✅ PRMate updated successfully! Restart your shell or run 'prmate' again."
+            exit 0
+        else
+            echo "⚠️ Skipping update. You can update manually later."
+        fi
+    else
+        echo "✅ PRMate is up to date."
+    fi
+}
+
+# Function to reinstall PRMate
+reinstall_prmate() {
+    echo "⬇️ Fetching the latest version of PRMate..."
+    curl -sSL "$GITHUB_INSTALLER_URL" | bash
+    echo "✅ PRMate has been reinstalled successfully!"
+    exit 0
+}
+
+if [[ "$1" == "reinstall" ]]; then
+    reinstall_prmate
+fi
+
+# Call the update checker at script startup
+check_for_updates
+
+echo "🤝 Running PRMate..." 
+
 # Default branch is the current branch
 BRANCH=$(git branch --show-current)
 DRY_RUN=false
