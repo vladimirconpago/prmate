@@ -29,6 +29,15 @@ GITHUB_INSTALLER_URL="https://raw.githubusercontent.com/vladimirconpago/prmate/m
 DRY_RUN=false
 TARGET_BRANCH="develop"
 
+# Mapping commit types to emoji icons (length must match)
+# Using instead of declare -A, as macos uses older version of bash
+COMMIT_TYPES=("feat" "fix" "docs" "style" "refactor" "perf" "test" "build" "ci" "chore" "revert")
+EMOJIS=("✨ Features" "🐛 Bug Fixes" "📝 Documentation" "🎨 Code Style" "♻️ Refactoring" "⚡ Performance" "✅ Tests" "🏗️ Build System" "🚀 CI/CD" "🧹 Chores" "⏪ Reverts")
+
+# Group commit messages by scope
+GROUPED_SCOPES_KEYS=()
+GROUPED_SCOPES_VALUES=()
+
 # Ensure `gh` CLI is installed
 if ! command -v gh &> /dev/null; then
     echo "❌ GitHub CLI (gh) is not installed."
@@ -166,23 +175,34 @@ echo "✅ Found $COMMIT_COUNT commit(s) to include in the PR"
 COMMIT_FILE=$(mktemp)
 git log --pretty=format:"%h %s%n%b" "$TARGET_BRANCH_REF".."$BASE_BRANCH" > "$COMMIT_FILE" 2>/dev/null
 
-# Mapping commit types to emoji icons
-declare -A EMOJI_MAP=(
-    ["feat"]="✨ Features"
-    ["fix"]="🐛 Bug Fixes"
-    ["docs"]="📝 Documentation"
-    ["style"]="🎨 Code Style"
-    ["refactor"]="♻️ Refactoring"
-    ["perf"]="⚡ Performance"
-    ["test"]="✅ Tests"
-    ["build"]="🏗️ Build System"
-    ["ci"]="🚀 CI/CD"
-    ["chore"]="🧹 Chores"
-    ["revert"]="⏪ Reverts"
-)
 
-# Group commit messages by scope first
-declare -A GROUPED_SCOPES
+
+get_emoji() {
+    local type="$1"
+    for i in "${!COMMIT_TYPES[@]}"; do
+        if [[ "${COMMIT_TYPES[$i]}" == "$type" ]]; then
+            echo "${EMOJIS[$i]}"
+            return
+        fi
+    done
+    echo "🗑️ Uncategorized"  # Default if not found
+}
+
+
+
+add_to_grouped_scopes() {
+    local key="$1"
+    local value="$2"
+    for i in "${!GROUPED_SCOPES_KEYS[@]}"; do
+        if [[ "${GROUPED_SCOPES_KEYS[$i]}" == "$key" ]]; then
+            GROUPED_SCOPES_VALUES[$i]+=$'\n'"$value"
+            return
+        fi
+    done
+    GROUPED_SCOPES_KEYS+=("$key")
+    GROUPED_SCOPES_VALUES+=("$value")
+}
+
 UNCATEGORIZED_COMMITS=""
 BREAKING_CHANGES=""
 
@@ -225,7 +245,8 @@ while IFS= read -r commit || [ -n "$commit" ]; do
         UNCATEGORIZED_COMMITS+="- 🗑️ $commit_link"$'\n'
     else
         # Ensure GROUPED_SCOPES array is initialized
-        GROUPED_SCOPES["$commit_scope"]+="- ${EMOJI_MAP[$commit_type]} $commit_link"$'\n'
+        emoji=$(get_emoji "$commit_type")
+        add_to_grouped_scopes "$commit_scope" "- $emoji $commit_link"
     fi
 done < "$COMMIT_FILE"
 
@@ -239,8 +260,8 @@ if [[ -n "$BREAKING_CHANGES" ]]; then
     PR_BODY+="### ⚠️ Breaking Changes"$'\n\n'"$BREAKING_CHANGES"$'\n'
 fi
 
-for scope in "${!GROUPED_SCOPES[@]}"; do
-    PR_BODY+="### $scope"$'\n\n'"${GROUPED_SCOPES[$scope]}"$'\n'
+for i in "${!GROUPED_SCOPES_KEYS[@]}"; do
+    PR_BODY+="### ${GROUPED_SCOPES_KEYS[$i]}"$'\n\n'"${GROUPED_SCOPES_VALUES[$i]}"$'\n'
 done
 
 if [[ -n "$UNCATEGORIZED_COMMITS" ]]; then
