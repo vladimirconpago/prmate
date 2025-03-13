@@ -54,7 +54,7 @@ if ! command -v gh &> /dev/null; then
 fi
 
 # Get current branch name and repository URL for PR creation
-BRANCH=$(git branch --show-current)
+BASE_BRANCH=$(git branch --show-current)
 GITHUB_REPO_URL=$(git remote get-url origin | sed -E 's#(git@|https://)([^:/]+)[:/]([^/]+)/([^/.]+).*#https://\2/\3/\4#')
 
 # Validate that the current branch exists in the repository
