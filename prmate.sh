@@ -128,11 +128,11 @@ echo "🤝 Running PRMate..."
 
 # Prompt user for Fibery Title (skip in dry-run)
 if [[ "$DRY_RUN" != "true" ]]; then
-    read -rp "Enter Fibery Title: " FIBERY_TITLE
-    read -rp "Enter Fibery Task Link: " FIBERY_TASK
+    read -rp "Enter PR Title: " TASK_TITLE
+    read -rp "Enter Task Link: " TASK
 else
-    FIBERY_TITLE="Test PR"
-    FIBERY_TASK="https://fibery.io/task"
+    TASK_TITLE="Test PR"
+    TASK="https://fibery.io/task"
 fi
 
 # Get GitHub repo URL
@@ -269,7 +269,8 @@ if [[ -n "$UNCATEGORIZED_COMMITS" ]]; then
 fi
 
 # Fix the formatting of code blocks for `pnpm test`
-PR_BODY+="## Fibery Task"$'\n'"$FIBERY_TASK"$'\n\n'
+PR_BODY+=""$'\n'
+PR_BODY+="## Task"$'\n'"$TASK"$'\n\n'
 PR_BODY+="## Testing Instructions"$'\n\n'
 PR_BODY+="\`\`\`sh"$'\n'
 PR_BODY+="pnpm test"$'\n'
@@ -283,7 +284,7 @@ fi
 
 # Create PR
 echo "🚀 Creating PR from branch '$BRANCH'..."
-gh pr create --title "$FIBERY_TITLE" --body "$PR_BODY" --head "$BRANCH"
+gh pr create --title "$TASK_TITLE" --body "$PR_BODY" --head "$BRANCH"
 
 # Check success
 if [ $? -eq 0 ]; then
