@@ -96,7 +96,6 @@ check_for_updates() {
 reinstall_prmate() {
     echo "⬇️ Fetching the latest version of PRMate..."
     curl -sSL "$GITHUB_INSTALLER_URL" | bash
-    echo "✅ PRMate has been reinstalled successfully!"
     exit 0
 }
 
