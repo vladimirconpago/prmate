@@ -19,12 +19,6 @@
 Run the following command to install **PRMate**:
 
 ```sh
-curl -sSL https://raw.githubusercontent.com/vladimirconpago/prmate/main/install.sh | bash
-```
-
-Alternatively, clone the repo and run the installer:
-
-```sh
 git clone https://github.com/vladimirconpago/prmate.git
 cd prmate
 chmod +x install.sh
@@ -36,17 +30,21 @@ chmod +x install.sh
 ## 🛠️ Usage
 
 ### **1️⃣ Create a PR from the current branch**
+
 ```sh
 prmate
 ```
+
 This will prompt you for a **Fibery Title** and **Fibery Task Link** before creating the PR.
 
 ### **2️⃣ Create a PR from a specific branch**
+
 ```sh
 prmate -b feature-new-ui
 ```
 
 ### **3️⃣ Preview PR description before submitting**
+
 ```sh
 prmate --dry-run
 ```
@@ -55,7 +53,7 @@ prmate --dry-run
 
 ## 🔍 Example PR Description
 
-```
+````
 ## Description
 
 ### egress
@@ -75,7 +73,8 @@ https://conpago.fibery.io/Software_Development/Story/Sync-Care-Appointments-958
 ## Testing Instructions
 ```sh
 pnpm test
-```
+````
+
 ```
 
 ---
@@ -95,3 +94,4 @@ Want to improve PRMate? Feel free to open an issue or submit a pull request.
 ## 📝 License
 MIT License © 2025
 
+```
