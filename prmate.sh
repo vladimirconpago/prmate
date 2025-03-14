@@ -4,7 +4,7 @@
 set -e
 
 # Current version of PRMate - increment when making changes
-VERSION="0.0.6"
+VERSION="0.0.7"
 
 # Configuration constants
 # Conventional commit types supported by the tool
