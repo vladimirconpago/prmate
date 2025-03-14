@@ -297,7 +297,7 @@ fi
 
 # Create the pull request using GitHub CLI
 echo "🚀 Creating PR from branch '$BASE_BRANCH'..."
-gh pr create --title "$TASK_TITLE" --body "$PR_BODY" --head "$BASE_BRANCH"
+gh pr create --title "$TASK_TITLE" --body "$PR_BODY" --head "$BASE_BRANCH" --assignee "@me"
 
 # Provide feedback on PR creation success or failure
 if [ $? -eq 0 ]; then
