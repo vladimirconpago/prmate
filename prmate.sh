@@ -4,7 +4,7 @@
 set -e
 
 # Current version of PRMate - increment when making changes
-VERSION="0.0.7"
+VERSION="0.0.8"
 
 # Configuration constants
 # Conventional commit types supported by the tool
@@ -16,6 +16,7 @@ GITHUB_RAW_URL="https://raw.githubusercontent.com/vladimirconpago/prmate/master/
 GITHUB_INSTALLER_URL="https://raw.githubusercontent.com/vladimirconpago/prmate/master/install.sh"
 # Default configuration
 DRY_RUN=false
+IS_DRAFT=false
 TARGET_BRANCH="develop"
 # Arrays for storing grouped commit messages by scope
 GROUPED_SCOPES_KEYS=()
@@ -28,8 +29,9 @@ BREAKING_CHANGES=""
 # Display help information and usage examples
 usage() {
     echo "🧢 PRMate v$VERSION "
-    echo "Usage: $0 [-b <branch>] [--dry-run] [--reinstall] [--version]"
-    echo "  -b  Specify a branch (default: current branch)"
+    echo "Usage: $0 [-b <branch>] [--dry-run] [--draft] [--reinstall] [--version]"
+    echo "  -b  Specify a target branch (default: current branch)"
+    echo "  --draft  Create the PR in draft"
     echo "  --dry-run  Preview PR body without creating PR"
     echo "  --reinstall  Reinstall PRMate to update to the latest version"
     echo "  --version  Display the current version"
@@ -133,6 +135,7 @@ while [[ "$#" -gt 0 ]]; do
     case $1 in
         -b) TARGET_BRANCH="$2"; shift ;;
         --dry-run) DRY_RUN=true ;;
+        --draft) IS_DRAFT=true ;;
         *) usage ;;
     esac
     shift
@@ -288,6 +291,9 @@ PR_BODY+="\`\`\`sh"$'\n'
 PR_BODY+="pnpm test"$'\n'
 PR_BODY+="\`\`\`"$'\n'
 
+# any other optional arguments
+ADDITONAL_ARGS=""
+
 # In dry-run mode, just display the PR body without creating PR
 if [[ "$DRY_RUN" == "true" ]]; then
     echo "## PR Body Preview"$'\n\n'
@@ -295,9 +301,14 @@ if [[ "$DRY_RUN" == "true" ]]; then
     exit 0
 fi
 
+# create the PR in draft
+if [[ "$IS_DRAFT" == "true" ]]; then
+  ADDITONAL_ARGS+=" --draft"
+fi
+
 # Create the pull request using GitHub CLI
 echo "🚀 Creating PR from branch '$BASE_BRANCH'..."
-gh pr create --title "$TASK_TITLE" --body "$PR_BODY" --head "$BASE_BRANCH" --assignee "@me"
+gh pr create --title "$TASK_TITLE" --body "$PR_BODY" --head "$BASE_BRANCH" --assignee "@me" $ADDITONAL_ARGS
 
 # Provide feedback on PR creation success or failure
 if [ $? -eq 0 ]; then
