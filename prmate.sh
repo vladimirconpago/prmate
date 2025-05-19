@@ -294,12 +294,6 @@ PR_BODY+="\`\`\`"$'\n'
 # any other optional arguments
 ADDITONAL_ARGS=""
 
-REVIEWING_TEAM="conpagoaus/frontend-team"
-
-if [[ $GITHUB_REPO_URL == *"backend"* ]]; then
-  REVIEWING_TEAM="conpagoaus/backend-team"
-fi
-
 # In dry-run mode, just display the PR body without creating PR
 if [[ "$DRY_RUN" == "true" ]]; then
     echo "## PR Body Preview"$'\n\n'
@@ -314,7 +308,7 @@ fi
 
 # Create the pull request using GitHub CLI
 echo "🚀 Creating PR from branch '$BASE_BRANCH'..."
-gh pr create --title "$TASK_TITLE" --body "$PR_BODY" --head "$BASE_BRANCH" --assignee "@me"	--reviewer $REVIEWING_TEAM $ADDITONAL_ARGS
+gh pr create --title "$TASK_TITLE" --body "$PR_BODY" --head "$BASE_BRANCH" --assignee "@me"	$ADDITONAL_ARGS
 
 # Provide feedback on PR creation success or failure
 if [ $? -eq 0 ]; then
